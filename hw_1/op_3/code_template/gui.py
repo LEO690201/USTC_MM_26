@@ -369,23 +369,24 @@ class SocialNetworkApp:
         self.rank_tree.tag_configure("top", background="#fff9c4")
 
         # ===================== TODO =====================
-        # 请在下方完成两部分可视化：
-        #
         # 1. 绘制图的所有边
         #    提示：遍历 self.graph.nodes 和 self.graph.neighbors(u)
         #          获取每条边的两个端点，用 self.pos 查坐标，
         #          用 ax.plot([x0, x1], [y0, y1], ...) 绘制线段
-        #          注意避免重复绘制（u < v）
+        #          注意避免重复绘制边
         #
+  
+
+        # 使用 matplotlib colormap 将得分映射为颜色，默认为"YlOrRd"，也可使用其他 colormap
+        cmap = plt.get_cmap(self.CMAP_NAME)
+        # 定义归一化函数
+        norm = Normalize(vmin=vmin, vmax=vmax) 
+        # 节点颜色反映其中心性得分
+        colors = [cmap(norm(scores[n])) for n in self.graph.nodes]
+
+        # ===================== TODO =====================
         # 2. 绘制所有节点，节点大小和颜色应反映其中心性得分
-        #    提示：
-        #    - 使用 matplotlib colormap 将得分映射为颜色
-        #        cmap = plt.get_cmap("YlOrRd")  # 或其他 colormap
-        #        norm = Normalize(vmin=vmin, vmax=vmax)
-        #        colors = [cmap(norm(scores[n])) for n in self.graph.nodes]
-        #    - 节点大小按线性映射：
-        #        sizes = [base + scale * (scores[n] - vmin) / rng ...]
-        #    - 使用 ax.scatter(xs, ys, s=sizes, c=colors, ...) 绘制节点
+        #    提示：使用 ax.scatter(xs, ys, s=sizes, c=colors, ...) 绘制节点
         #
         # 可用变量：
         #   self.graph - 自定义 Graph 对象（self.graph.nodes / neighbors）
@@ -394,7 +395,7 @@ class SocialNetworkApp:
         #   vmin, vmax - 得分的最小/最大值
         #   rng        - 得分范围 (vmax - vmin)
         #
-        # 请将你计算的 cmap 和 norm 保存到局部变量，
+        # 请勿删除 cmap 和 norm ，
         # 下方的 top-k 高亮、标签、colorbar 代码会用到它们。
         # ================================================
 
