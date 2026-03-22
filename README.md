@@ -25,7 +25,11 @@
 作业文档（WIP）：
 - [作业1：图与网络模型](./hw_1/README.md)
 
-## 2. 辅助资料
+## 2. C++ 程序编译
+
+部分作业中提供了 C++ 实现框架（位于各题的 `code_template_cpp/` 目录），但 C++ 程序需要先编译才能运行。本节介绍如何使用 CMake 对本作业中的 C++ 程序进行构建和编译，详见 [C++ 程序编译说明](./BUILD_CPP.md)。
+
+## 3. 辅助资料
 
 - `MATLAB` 相关资源：[MATLAB 官方文档](https://ww2.mathworks.cn/help/matlab/index.html?s_tid=hc_panel), [MATLAB 教程](https://www.cainiaojc.com/matlab/matlab-tutorial.html)
 - `CPP` 相关资源：[CPP Reference](https://en.cppreference.com/w/), [CPP 教程](https://www.runoob.com/cplusplus/cpp-tutorial.html)
