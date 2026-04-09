@@ -1,0 +1,101 @@
+% !TEX program = xelatex
+
+\documentclass{article}
+\usepackage[UTF8]{ctex}
+\usepackage[tc]{titlepic}
+\usepackage{titlesec}
+\usepackage{cite}
+\usepackage{fancyhdr}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage[section]{placeins}
+\geometry{a4paper,scale=0.8}
+\pagestyle{fancy}
+
+\lhead{作业 2——矩阵分解\\\today}
+\chead{中国科学技术大学\\数学建模课程}
+\rhead{SVD 图像压缩}
+
+\title{基于奇异值分解的图像压缩}
+\author{姓名：胡广理 \\ 学号：PB24010500}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+    本文实现了基于奇异值分解（SVD）的灰度图像压缩。遵循课程要求，SVD 的计算不直接调用高阶 SVD 接口，而是通过对称矩阵的特征分解实现。对仓库示例图片进行秩-$k$ 重构，使用 PSNR 和（全局）SSIM 评估压缩效果，并讨论方法的复杂度与改进方向。
+\end{abstract}
+
+
+\setcounter{section}{1}
+\section*{一、前言（问题的提出）}
+图像压缩是减小存储与传输代价的常见任务。SVD 为矩阵提供低秩近似，常用于图像近似与压缩：保留重要奇异值即可恢复主要视觉信息。
+
+\setcounter{section}{3}
+\section*{三、问题分析}
+给定灰度图像矩阵 $A\in \mathbb{R}^{m\times n}$，目标是构造秩-$k$ 近似 $A_k$，使得在保持视觉质量的同时显著压缩数据量。我们将比较不同 $k$ 值的重构质量与代价。
+
+\setcounter{section}{6}
+\section*{六、数学模型建立}
+令 $A=U\Sigma V^T$ 为 $A$ 的奇异值分解，其中 $\Sigma=\mathrm{diag}(\sigma_1,\dots,\sigma_r)$，$r=\min(m,n)$，奇异值按非增顺序排列。秩-$k$ 重构为
+$$A_k=\sum_{i=1}^k\sigma_i u_i v_i^T = U_k \Sigma_k V_k^T.$$ 
+
+在计算上，当 $m\ge n$，我们先计算 $A^TA$ 的特征分解 $A^TA=V\Lambda V^T$（对称矩阵，可用 \texttt{eigh} 稳定计算），取 $\sigma_i=\sqrt{\lambda_i}$，再计算 $u_i=(A v_i)/\sigma_i$。若 $n>m$，对 $AA^T$ 做类似处理以得到 $U$，再求 $V$。该方法避免直接调用 \texttt{linalg.svd}，但依然依赖 \texttt{linalg.eigh} 求对称特征分解。
+
+\subsection*{时间复杂度与存储}
+完整特征分解代价约 $O(\min(m,n)^3)$，适用于中小尺寸图像。存储方面，秩-$k$ 近似只需保存 $U_k( m\times k)$、$\Sigma_k(k)$ 与 $V_k^T(k\times n)$，总体元素数为 $k(m+n+1)$。
+
+\setcounter{section}{7}
+\section*{七、结果（与对比）}
+\subsection*{实验设置}
+实验使用仓库示例图片 \texttt{imgs/CMakeTools.png}（转为灰度）作为输入，在不同 $k$ 值下重构并评估 PSNR 与全局 SSIM（实现见代码）。实验在 \texttt{hw\_2/option1} 目录下运行，重构图与汇总图保存在 \texttt{demo\_out}。
+
+\subsection*{可视化结果}
+下面展示汇总对比图与各 $k$ 的重构结果。
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.85\textwidth]{demo\_out/summary.png}
+    \caption{原图与秩-$k$ 重构汇总（k=5,20,50）}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.32\textwidth]{demo\_out/recon\_k5.png}
+    \includegraphics[width=0.32\textwidth]{demo\_out/recon\_k20.png}
+    \includegraphics[width=0.32\textwidth]{demo\_out/recon\_k50.png}
+    \caption{左：k=5；中：k=20；右：k=50}
+\end{figure}
+
+\subsection*{定量指标}
+\begin{table}[h]
+\centering
+\caption{不同 $k$ 值下的 PSNR 与 SSIM}
+\begin{tabular}{ccc}
+\toprule
+k & PSNR (dB) & SSIM \\
+\midrule
+5 & 20.417 & 0.8197 \\
+20 & 24.997 & 0.9431 \\
+50 & 32.372 & 0.9901 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\setcounter{section}{8}
+\section*{八、结论}
+实验表明：随着保留秩 $k$ 的增加，重构图像的视觉质量与 PSNR/SSIM 均显著提升。对该示例而言，$k=20$ 已能达到较好的视觉保真度，而 $k=50$ 接近原图。
+
+\setcounter{section}{9}
+\section*{九、问题与扩展}
+当前实现受限于完整特征分解的计算开销，后续可考虑：
+\begin{itemize}
+    \item 使用截断或随机化 SVD（randomized SVD）以在大图上加速；
+    \item 对彩色图像按通道处理或使用分块 SVD（block-wise SVD）；
+    \item 使用滑动窗口实现标准 SSIM 以获得更精确的感知质量度量；
+    \item 提供交互式 GUI 便于可视化比较与参数调优。
+\end{itemize}
+
+\bibliographystyle{ieeetr}
+\bibliography{refer}
+
+\end{document}
