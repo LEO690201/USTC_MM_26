@@ -55,7 +55,7 @@ $$
 
 其中 $\beta$ 为罚参数，一般取值较大。若能最小化此能量泛函，则对应的函数即为方程的解。
 
-现在，我们可以用神经网络 $u(\theta)$ 来逼近函数的解，其中 $\theta$ 为网络参数。自然地，能量泛函可作为神经网络的损失函数：
+现在，我们可以用神经网络 $u(\theta)$ 来逼近函数的解 (Universal Approximation Theorem)，其中 $\theta$ 为网络参数。自然地，能量泛函可作为神经网络的损失函数：
 
 $$
 L(\theta)=\int_{\Omega}\left(\frac12|\nabla u(x;\theta)|^2-f(x)u(x;\theta)\right) dx
